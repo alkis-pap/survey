@@ -14,4 +14,4 @@ app = Flask(__name__, static_folder="./static/")
 def hello_world():
     cur = conn.cursor()
     cur.execute("SELECT * FROM test;")
-    return "\n".join(cur.fetchall())
+    return "\n".join(str(x) for x in cur.fetchall())
