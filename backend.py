@@ -25,7 +25,7 @@ app = Flask(__name__, static_folder="./static/")
 def index():
     return redirect(url_for('static', filename='index.html'))
 
-@app.route('/survey.json'):
+@app.route('/survey.json')
 def survey():
     return send_from_directory('surveys', filename='survey{}.json'.format(random.randint(1, 4)))
 
