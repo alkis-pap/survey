@@ -59,5 +59,6 @@ def make_photos(photos, data):
                     "type" : "radiogroup",
                     "choices" : photos[perm[i]]["choices"]
                 }
+            ]
         })
         
