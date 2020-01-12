@@ -1,6 +1,6 @@
 import os
 import sqlite3
-from flask import Flask, redirect, url_for, send_from_directory
+from flask import Flask, redirect, request, url_for, send_from_directory
 import random
 
 def log(msg):
@@ -22,8 +22,8 @@ def survey():
 
 @app.route('/update', methods=['POST'])
 def post():
-    log("aaaa")
-#     data = request.get_json()
+    data = request.get_json()
+    log(str(data))
 #     if len(data) == n_questions:
 #         cur.execute("INSERT INTO results VALUES (NOW()::timestamp, " + ",".join(["%d"] * n_questions) + ")", (data[key] for key in data))
 
