@@ -18,7 +18,9 @@ def index():
 
 @app.route('/survey.json')
 def survey():
-    return send_from_directory('surveys', filename='survey{}.json'.format(random.randint(1, 4)))
+    filename = 'survey{}.json'.format(random.randint(1, 2))
+    log(filename)
+    return send_from_directory('surveys', filename=filename)
 
 @app.route('/update', methods=['POST'])
 def post():
