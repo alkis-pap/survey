@@ -26,7 +26,7 @@ def make_text(data):
         {
             "questions": [{
                 'type' : 'html',
-                'name' : name
+                'name' : name,
                 'html' : html
             }]
         }
