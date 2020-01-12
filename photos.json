@@ -1,0 +1,18 @@
+[
+    {
+        "file" : "p1.jpg",
+        "choices" : ["a", "b", "c"]
+    },
+    {
+        "file" : "p2.jpg",
+        "choices" : ["a", "b", "c"]
+    },
+    {
+        "file" : "p3.jpg",
+        "choices" : ["a", "b", "c"]
+    },
+    {
+        "file" : "p4.jpg",
+        "choices" : ["a", "b", "c"]
+    }
+]

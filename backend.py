@@ -3,8 +3,10 @@ import sqlite3
 from flask import Flask, redirect, request, url_for, send_from_directory
 import random
 
+from make_survey import make_survey
+
 def log(msg):
-    with open("log.txt", "w") as f:
+    with open("log.txt", "w+") as f:
         f.write(msg + '\n')
 
 conn = sqlite3.connect('data.db')
@@ -18,9 +20,10 @@ def index():
 
 @app.route('/survey.json')
 def survey():
-    filename = 'survey{}.json'.format(random.randint(1, 2))
+    surveys = os.listdir("surveys")
+    filename = surveys[random.randint(0, len(surveys))]
     log(filename)
-    return send_from_directory('surveys', filename=filename)
+    return make_survey(os.path.join("surveys", filename))
 
 @app.route('/update', methods=['POST'])
 def post():

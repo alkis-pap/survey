@@ -1,110 +1,37 @@
-{
-	"pages": [
-		{
-			"questions": [
-				{
-					"type": "textwithbutton",
-					"name": "q1",
-					"placeHolder": "put some text here",
-					"buttonText": "Custom button text"
-				},
-				{
-					"type": "matrix",
-					"name": "Quality",
-					"title": "aaaaaaaaaaaaa",
-					"isRequired": true,
-					"columns": [
-						{
-							"value": 1,
-							"text": "Strongly Disagree"
-						},
-						{
-							"value": 2,
-							"text": "Disagree"
-						},
-						{
-							"value": 3,
-							"text": "Neutral"
-						},
-						{
-							"value": 4,
-							"text": "Agree"
-						},
-						{
-							"value": 5,
-							"text": "Strongly Agree"
-						}
-					],
-					"rows": [
-						{
-							"value": "affordable",
-							"text": "Product is affordable"
-						},
-						{
-							"value": "does what it claims",
-							"text": "Product does what it claims"
-						},
-						{
-							"value": "better then others",
-							"text": "Product is better than other products on the market"
-						},
-						{
-							"value": "easy to use",
-							"text": "Product is easy to use"
-						}
-					]
-				}
-			]
-		},
-		{
-			"questions": [
-				{
-					"type": "matrix",
-					"name": "Quality2",
-					"title": "Please indicate if you agree or disagree with the following statements",
-					"isRequired": true,
-					"columns": [
-						{
-							"value": 1,
-							"text": "Strongly Disagree"
-						},
-						{
-							"value": 2,
-							"text": "Disagree"
-						},
-						{
-							"value": 3,
-							"text": "Neutral"
-						},
-						{
-							"value": 4,
-							"text": "Agree"
-						},
-						{
-							"value": 5,
-							"text": "Strongly Agree"
-						}
-					],
-					"rows": [
-						{
-							"value": "affordable",
-							"text": "Product is affordable"
-						},
-						{
-							"value": "does what it claims",
-							"text": "Product does what it claims"
-						},
-						{
-							"value": "better then others",
-							"text": "Product is better than other products on the market"
-						},
-						{
-							"value": "easy to use",
-							"text": "Product is easy to use"
-						}
-					]
-				}
-			]
-		}
-	]
-}
+[
+	{
+		"type" : "text",
+		"text" : "survey1"
+	},
+	{
+		"type" : "text",
+		"text" : "Goals1",
+		"audio" : "goals1.wav"
+	},
+	{
+		"type" : "text",
+		"text" : "Welcome"
+	},
+	{
+		"type" : "matrix",
+		"name" : "ph1_check",
+		"text" : "Could you please, indicate, one more time, what is your goal in the task and why?",
+		"columns" : ["1", "2", "3", "4", "5"],
+		"rows": [
+			"My goal is to be among the best test takers.",
+			"… Because I feel obliged to do so",
+			"… Because it is interesting",
+			"My goal is to improve my emotion recognition skills.",
+			"… Because I feel obliged to do so",
+			"… Because it is interesting",
+		]
+	},
+	{
+		"type" : "photos",
+		"number" : 2
+	},
+	{
+		"type" : "text",
+		"text" : "feedback"
+	}
+]
