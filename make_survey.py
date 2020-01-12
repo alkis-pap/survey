@@ -52,7 +52,7 @@ def make_photos(photos, data):
         result.append({
             "questions" : [
                 {
-                    "type" : "html"
+                    "type" : "html",
                     "html" : f'<img src={photos[perm[i]]["file"]} />'
                 },
                 {
