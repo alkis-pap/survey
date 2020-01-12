@@ -2,10 +2,10 @@ import os
 import sqlite3
 from flask import Flask, redirect, url_for, send_from_directory
 import random
-import atexit
 
-log = open("log.txt", "w")
-atexit.register(lambda: log.close())
+def log(msg):
+    with open("log.txt", "w") as f:
+        f.write(msg + '\n')
 
 conn = sqlite3.connect('data.db')
 cur = conn.cursor()
@@ -22,7 +22,7 @@ def survey():
 
 @app.route('/update', methods=['POST'])
 def post():
-    log.write("a")
+    log("aaaa")
 #     data = request.get_json()
 #     if len(data) == n_questions:
 #         cur.execute("INSERT INTO results VALUES (NOW()::timestamp, " + ",".join(["%d"] * n_questions) + ")", (data[key] for key in data))
