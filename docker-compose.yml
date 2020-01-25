@@ -1,0 +1,17 @@
+version: '3'
+services:
+  survey:
+    build: .
+    volumes: 
+      - .:/usr/src/survey
+  nginx:
+    image: "nginx"
+    command: /bin/bash -c "envsubst '$$SERVER_NAME' < /etc/nginx/conf.d/survey.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+    environment:
+      - SERVER_NAME=167.71.54.42
+    ports:
+      - "80:80"
+    volumes:
+      - ./conf.d/:/etc/nginx/conf.d/
+    depends_on: 
+      - survey
