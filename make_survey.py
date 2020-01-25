@@ -1,4 +1,6 @@
 import json
+import random
+import sys
 
 def make_survey(json_file):
     data = []
@@ -13,12 +15,12 @@ def make_survey(json_file):
         elif item["type"] == "photos":
             pages += make_photos(item)
     return json.dumps({
-        pages: pages
+        "pages": pages
     })
 
 def make_text(data):
     if "audio" in data:
-        html = f'<audio src={data["file"]} />'
+        html = f'<audio src=/audio/{data["audio"]} />'
     else:
         html = ''
     html += f'<p>{data["text"]}</p>'
@@ -26,7 +28,6 @@ def make_text(data):
         {
             "questions": [{
                 'type' : 'html',
-                'name' : name,
                 'html' : html
             }]
         }
@@ -39,26 +40,38 @@ def make_matrix(data):
                 'type' : 'matrix',
                 'name' : data["name"],
                 'title' : data["text"],
+                'isAllRowRequired' : True,
                 'columns' : data["columns"],
-                'rows' : data["rows"]
+                'rows' : [{'value': i, 'text' : data} for i, data in enumerate(data["rows"])]
             }]
         }
     ]
 
-def make_photos(photos, data):
+_photos = []
+with open("photos.json") as f:
+    _photos = json.load(f)
+
+def make_photos(data):
     result = []
-    perm = random.shuffle(range(len(photos)))
+    perm = list(range(len(_photos)))
+    random.shuffle(perm)
     for i in range(data["number"]):
+        # print(_photos[perm[i]], file=sys.stderr)
         result.append({
             "questions" : [
                 {
                     "type" : "html",
-                    "html" : f'<img src={photos[perm[i]]["file"]} />'
+                    "html" : f'<img class="photo" src=/photos/{_photos[perm[i]]["file"]} />'
                 },
                 {
                     "type" : "radiogroup",
-                    "choices" : photos[perm[i]]["choices"]
+                    'name' : data["prefix"] + str(i),
+                    'isRequired' : True,
+                    'titleLocation' : 'hidden',
+                    "choices" : _photos[perm[i]]["choices"],
+                    "rederAs" : "prettycheckbox"
                 }
             ]
         })
+    return result
         

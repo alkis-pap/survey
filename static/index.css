@@ -1,0 +1,13 @@
+table.table-striped {
+    border: none;
+    border-collapse: collapse
+}
+
+
+table.table-striped tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+img.photo {
+    max-height: 350px
+}

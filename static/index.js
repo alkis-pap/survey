@@ -92,9 +92,28 @@ var widget = {
 Survey.CustomWidgetCollection.Instance.addCustomWidget(widget, "customtype");
 
 Survey.StylesManager.applyTheme("modern");
+// Survey.StylesManager.applyTheme("bootstrap");
+// Survey.StylesManager.applyTheme("orange");
+// Survey.StylesManager.applyTheme("darkblue");
+// Survey.StylesManager.applyTheme("darkrose");
+// Survey.StylesManager.applyTheme("stone");
+// Survey.StylesManager.applyTheme("winter");
+// Survey.StylesManager.applyTheme("winterstone");
+
+
+Survey.defaultBootstrapCss.navigationButton = 'btn btn-primary';
 
 $.getJSON("survey.json", function (json) {
     window.survey = new Survey.Model(json);
+
+    survey.maxTimeToFinish = 40 * 60; // 40 min
+    // survey.showTimerPanel = "bottom";
+    survey.showTimerPanelMode = "survey";
+    survey.firstPageIsStarted = true;
+    survey.showPrevButton = false;
+    survey.showQuestionNumbers = "false";
+    survey.showProgressBar = "true";
+    survey.requiredText = "";
 
     survey.onComplete.add(function (result) {
         $.ajax("update", {
@@ -102,9 +121,16 @@ $.getJSON("survey.json", function (json) {
             contentType : 'application/json',
             type : 'POST'
         });
-        document.querySelector("#surveyResult").textContent =
-            "Result JSON:\n" + JSON.stringify(result.data, null, 3);
+        // document.querySelector("#surveyResult").textContent =
+        //     "Result JSON:\n" + JSON.stringify(result.data, null, 3);
     });
 
-    $("#surveyElement").Survey({ model: survey });
+    $("#surveyElement").Survey({ 
+        model: survey, 
+        css: {
+            matrix: {
+                root: "table table-striped"
+            }
+        } 
+    });
 });
