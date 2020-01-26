@@ -2,13 +2,34 @@ import os
 from flask import Flask, make_response, redirect, request, url_for, send_from_directory
 import random
 
-from make_survey import make_survey
-import database as db
+from survey import *
+from database import *
 from util import flatten
 
 def log(msg):
     with open("log.txt", "w+") as f:
         f.write(msg + '\n')
+
+try:
+    os.mkdir("static/surveys")
+except FileExistsError:
+    pass
+column_sets = []
+for filename in os.listdir("surveys"):
+    filepath = os.path.join("surveys", filename)
+    if os.path.isfile(filepath):
+        s = Survey(filepath)
+        s.generate(os.path.join("static/surveys", filename))
+        column_set = set(s.columns)
+        if len(column_set) != len(s.columns):
+            log("duplicate columns in " + filename)
+            quit()
+        if len(column_sets) > 0 and column_set != column_sets[-1]:
+            log("different columns in " + filename)
+            quit()
+        column_sets.append(column_set)
+
+db = Database("data.db", column_sets[0])
 
 app = Flask(__name__, static_folder="./static/")
 
@@ -22,11 +43,10 @@ def main():
 
 @app.route('/survey.json')
 def survey():
-    print('survey.json', flush=True)
-    surveys = os.listdir("surveys")
+    surveys = os.listdir("static/surveys")
     filename = surveys[random.randint(0, len(surveys) - 1)]
     # log(filename)
-    return make_survey(os.path.join("surveys", filename))
+    return send_from_directory('static/surveys', filename=filename)
 
 @app.route('/update', methods=['POST'])
 def update():

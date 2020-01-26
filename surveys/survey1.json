@@ -16,7 +16,7 @@
 		"type" : "matrix",
 		"name" : "ph1_check",
 		"text" : "Could you please, indicate, one more time, what is your goal in the task and why?",
-		"columns" : ["1", "2", "3", "4", "5"],
+		"columns" : ["first", "second", "third", "fourth", "fifth"],
 		"rows": [
 			"My goal is to be among the best test takers.",
 			"… Because I feel obliged to do so",
@@ -27,9 +27,15 @@
 		]
 	},
 	{
-		"type" : "photos",
-		"prefix" : "ph1_photo_",
-		"number" : 2
+		"type" : "photo",
+		"name" : "p1",
+		"file" : "p1.jpg",
+		"choices": ["a", "b", "c"]
+	},{
+		"type" : "photo",
+		"name" : "p2",
+		"file" : "p2.jpg",
+		"choices": ["a", "b", "c"]
 	},
 	{
 		"type" : "text",

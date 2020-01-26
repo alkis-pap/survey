@@ -11,3 +11,21 @@ table.table-striped tr:nth-child(even) {
 img.photo {
     max-height: 350px
 }
+
+/* .sv_row {
+    text-align: center;
+} */
+
+.sv_row {
+    /* margin: 0 auto;
+    width: 800px; */
+    text-align: center;
+}
+
+table {
+    text-align: initial;
+}
+
+.card-footer {
+    text-align: right;
+}
