@@ -1,0 +1,65 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Survey Admin Page</title>
+
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/file-icon-vectors@1.0.0/dist/file-icon-square-o.min.css" />
+  
+  <style>
+    form {
+      display: inline;
+    }
+
+    div.content {
+      margin-left: auto;
+      margin-right: auto;
+      width: 800px;
+    }
+    
+    div.file {
+      padding: 5px;
+      margin: 5px;
+      min-width: 300px;
+      border: 1px solid black;
+      display: flex;
+    }
+
+    div.file-json {
+      background-color:rgb(195, 255, 167);
+    }
+
+    div.file a {
+      margin: 5px;
+      flex-grow: 1
+    }
+
+  </style>
+</head>
+<body>
+  <div class="content">
+    <a href="/export">Export Data</a>
+    <br/>
+
+    <h2>Upload file:</h2>
+    <form method=post enctype=multipart/form-data action=upload>
+      <input type=file name=file>
+      <input type=submit value=Upload>
+    </form>
+
+    <br/>
+    
+    <h2>Files:</h2>
+    {% for file in files %}
+        <div class="file file-{{file.split('.')[-1]}}">
+          <span class="fiv-sqo fiv-icon-{{file.split('.')[-1]}}"></span>
+            <a href="/files/{{file}}">{{file}}</a>
+            <form action="delete_file/{{file}}" method="post">
+                <input class="submit" type="submit" value="delete" />
+                </form>
+        </div>
+    {% endfor %}
+  </div>
+</body>
+</html>

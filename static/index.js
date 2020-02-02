@@ -12,7 +12,7 @@ Survey.StylesManager.applyTheme("bootstrap");
 
 Survey.defaultBootstrapCss.navigationButton = 'btn btn-primary';
 
-$.getJSON("survey.json", function (json) {
+$.getJSON(json_file, function (json) {
     window.survey = new Survey.Model(json);
 
     survey.maxTimeToFinish = 40 * 60; // 40 min
@@ -25,7 +25,7 @@ $.getJSON("survey.json", function (json) {
     survey.requiredText = "";
 
     survey.onComplete.add(function (result) {
-        $.ajax("update", {
+        $.ajax("submit", {
             data : JSON.stringify(result.data),
             contentType : 'application/json',
             type : 'POST'

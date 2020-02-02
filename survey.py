@@ -24,7 +24,7 @@ class Survey:
     def make_text(self, data):
         if "audio" in data:
             html = f"""<audio controls autoplay>
-                    <source src="/audio/{data["audio"]}" type="audio/wav">
+                    <source src="/files/{data["audio"]}" type="audio/wav">
                     Your browser does not support the audio element.
                 </audio>"""
         else:
@@ -38,7 +38,7 @@ class Survey:
         })
     
     def make_matrix(self, data):
-        self.columns += [data["name"] + "_" + col for col in data["columns"]]
+        self.columns += [data["name"] + "_" + str(i) for i in range(len(data["rows"]))]
         self.pages.append({
             "questions": [{
                 'type' : 'matrix',
@@ -56,7 +56,7 @@ class Survey:
             "questions" : [
                 {
                     "type" : "html",
-                    "html" : f'<img class="photo" src=/photos/{data["file"]} />'
+                    "html" : f'<img class="photo" src=/files/{data["file"]} />'
                 },
                 {
                     "type" : "radiogroup",

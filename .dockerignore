@@ -1,2 +1,3 @@
 data.db
-/static/surveys/*
+backups/*
+static/surveys/*

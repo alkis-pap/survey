@@ -2,4 +2,5 @@ __pycache__
 *.db
 log.txt
 *.sock
-/static/surveys/*
+static/surveys/*
+backups/*

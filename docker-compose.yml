@@ -4,6 +4,8 @@ services:
     build: .
     volumes: 
       - .:/usr/src/survey
+    environment:
+      - PYTHONUNBUFFERED=TRUE
   nginx:
     image: "nginx"
     command: /bin/bash -c "envsubst '$$SERVER_NAME' < /etc/nginx/conf.d/survey.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
