@@ -26,7 +26,7 @@ $.getJSON(json_file, function (json) {
 
     survey.onComplete.add(function (result) {
         $.ajax("submit", {
-            data : JSON.stringify(result.data),
+            data : JSON.stringify(Object.assign({"survey": survey_name}, result.data)),
             contentType : 'application/json',
             type : 'POST'
         });

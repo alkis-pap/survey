@@ -4,3 +4,4 @@ log.txt
 *.sock
 static/surveys/*
 backups/*
+*.log

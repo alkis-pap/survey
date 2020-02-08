@@ -9,17 +9,18 @@ class Database:
         self.conn = sqlite3.connect(file_path)
         self.cur = self.conn.cursor()
         self.columns = columns
+        column_set = set(columns)
         try:
             self.cur.execute('select * from results')
         except sqlite3.OperationalError:
             self.reset()
         else:
-            existing_cols = set([d[0] for d in self.cur.description]) - set(['id', 'time'])
+            existing_cols = set([d[0] for d in self.cur.description]) - set(['id', 'time', 'survey'])
             if existing_cols != columns:
                 print('existing columns: ', existing_cols)
                 print('new columns: ', columns)
                 if existing_cols.issubset(columns):
-                    extra_columns = (columns - existing_cols)
+                    extra_columns = [c for c in columns if c in (column_set - existing_cols)]
                     print ('adding columns: ', extra_columns)
                     for col in extra_columns:
                         self.commit("alter table results add column" + col + " text")
@@ -30,15 +31,15 @@ class Database:
         self.backup()
         self.cur.execute("drop table if exists results")
         self.commit(
-            "create table results (id integer primary key, {}, time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL)".format(
+            "create table results (id integer primary key, survey text, time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL, {})".format(
                 ', '.join(c + ' text' for c in self.columns)
             )
         )
 
     def insert_record(self, record):
         column_list = ", ".join([c for c in self.columns])
-        question_marks = ','.join(':' + c for c in self.columns)
-        query = f"INSERT INTO results ({column_list}) VALUES ({question_marks})"
+        question_marks = ','.join(':' + c for c in ['survey'] + self.columns)
+        query = f"INSERT INTO results (survey, {column_list}) VALUES ({question_marks})"
         print(query)
         self.commit(query, record)
 

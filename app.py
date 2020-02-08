@@ -1,6 +1,7 @@
 import os
 import shutil
 from flask import Flask, flash, make_response, render_template, session, redirect, request, url_for, send_from_directory
+from werkzeug.utils import secure_filename
 import random
 from mimetypes import guess_type
 
@@ -15,8 +16,7 @@ class AppState:
         pass
     
     def init(self):
-        column_sets = []
-        _surveys = []
+        column_lists = []
         try:
             os.mkdir('static/surveys')
         except FileExistsError:
@@ -26,16 +26,18 @@ class AppState:
             filepath = os.path.join('static/files', filename)
             if filename.endswith('.json') and os.path.isfile(filepath):
                 s = Survey(filepath)
-                column_set = set(s.columns)
-                # if len(column_set) != len(s.columns):
-                #     raise Exception('duplicate columns in ' + filename)
-                # if len(column_sets) > 0 and column_set != column_sets[-1]:
-                #     raise Exception('different columns in ' + filename)
-                # _surveys.append((os.path.join('generated', filename), s))
                 s.generate(os.path.join('static/surveys', filename))
-                column_sets.append(column_set)
-        print(column_sets[0])
-        self.db = Database('data.db', column_sets[0])
+                column_lists.append(s.columns)
+        if len(column_lists) == 0:
+            columns = []
+        elif len(column_lists) == 1:
+            columns = column_lists[0]
+        else:
+            column_sets = [set(l) for l in column_lists]
+            common = column_sets[0].intersection(*column_sets[1:])
+            columns = [c for c in column_lists[0] if c in common]
+        print(columns)
+        self.db = Database('data.db', columns)
 
 state = AppState()
 state.init()
@@ -43,7 +45,7 @@ state.init()
 app = Flask(__name__, static_folder='./static/')
 
 app.secret_key = b'\xaf\x82\xfa\xf6\xc8\xd6o\xcc\xa4\x10\xd2\xad\x90\xd0\x01\xb6'
-PASSWORD = 'fregoalcomplex'
+PASSWORD = '12345'
 
 @app.route('/index.html')
 def index():
@@ -84,7 +86,11 @@ def login():
 def admin():
     if 'admin' in session:
         files = [f for f in os.listdir('static/files') if os.path.isfile(os.path.join('static/files', f))]
-        return render_template("admin.html", files=sorted(files, key=lambda x: "__" + x if x.endswith('.json') else x))
+        return render_template(
+            "admin.html", 
+            files=sorted(files, key=lambda x: "__" + x if x.endswith('.json') else x),
+            results=state.db.results()
+        )
     else:
         return redirect('/login')
 
@@ -103,17 +109,14 @@ def files(filename=None):
 @app.route('/upload', methods=['POST'])
 def upload():
     if 'admin' in session:
-        if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
-        file = request.files['file']
-        if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
-        if file:
-            file.save(os.path.join('static/files', file.filename))
-            state.init()
-            return redirect(url_for('admin'))
+        for file in request.files.getlist('files'):
+            print(file)
+            filename = secure_filename(file.filename)
+            if filename != '':
+                file.save(os.path.join('static/files', filename ))
+        state.init()
+        return redirect(url_for('admin'))
+
 
 @app.route('/export')
 def export():

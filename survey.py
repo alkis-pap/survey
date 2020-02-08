@@ -38,16 +38,16 @@ class Survey:
         })
     
     def make_matrix(self, data):
-        self.columns += [data["name"] + "_" + str(i) for i in range(len(data["rows"]))]
-        self.pages.append({
-            "questions": [{
+        self.columns += [data["name"] + "_" + str(i + 1) for i in range(len(data["rows"]))]
+        self.make_text(data)
+        self.pages[-1]["questions"].append({
                 'type' : 'matrix',
                 'name' : data["name"],
-                'title' : data["text"],
+                # 'title' : '',#data["text"],
+                'titleLocation' : 'hidden',
                 'isAllRowRequired' : True,
-                'columns' : data["columns"],
-                'rows' : [{'value': i, 'text' : data} for i, data in enumerate(data["rows"])]
-            }]
+                'columns' : [{'value': i + 1, 'text': col} for i, col in enumerate(data["columns"])],
+                'rows' : [{'value': i + 1, 'text' : row} for i, row in enumerate(data["rows"])]
         })
 
     def make_photo(self, data):
@@ -63,7 +63,7 @@ class Survey:
                     'name' : data["name"],
                     'isRequired' : True,
                     'titleLocation' : 'hidden',
-                    "choices" : data["choices"],
+                    "choices" : [{'value': i + 1, 'text': col} for i, col in enumerate(data["choices"])],
                     "colCount" : len(data["choices"])
                     # "rederAs" : "prettycheckbox"
                 }
