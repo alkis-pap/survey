@@ -3,5 +3,6 @@ __pycache__
 log.txt
 *.sock
 static/surveys/*
+static/files/*
 backups/*
 *.log

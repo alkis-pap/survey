@@ -4,6 +4,7 @@ from flask import Flask, flash, make_response, render_template, session, redirec
 from werkzeug.utils import secure_filename
 import random
 from mimetypes import guess_type
+from datetime import datetime
 
 from survey import *
 from database import *
@@ -22,12 +23,20 @@ class AppState:
         except FileExistsError:
             shutil.rmtree('static/surveys')
             os.mkdir('static/surveys')
+        
+        self.logs = []
+
         for filename in os.listdir('static/files'):
             filepath = os.path.join('static/files', filename)
             if filename.endswith('.json') and os.path.isfile(filepath):
-                s = Survey(filepath)
-                s.generate(os.path.join('static/surveys', filename))
-                column_lists.append(s.columns)
+                try:
+                    s = Survey(filepath)
+                    s.generate(os.path.join('static/surveys', filename))
+                    column_lists.append(s.columns)
+                except SurveyError as e:
+                    print(e)
+                    self.log(str(e))
+
         if len(column_lists) == 0:
             columns = []
         elif len(column_lists) == 1:
@@ -38,6 +47,12 @@ class AppState:
             columns = [c for c in column_lists[0] if c in common]
         print(columns)
         self.db = Database('data.db', columns)
+
+    def log(self, msg):
+        now = datetime.now()
+        for line in msg.split('\n'):
+            self.logs.append((now, line))
+    
 
 state = AppState()
 state.init()
@@ -89,7 +104,8 @@ def admin():
         return render_template(
             "admin.html", 
             files=sorted(files, key=lambda x: "__" + x if x.endswith('.json') else x),
-            results=state.db.results()
+            results=state.db.results(),
+            logs=state.logs
         )
     else:
         return redirect('/login')

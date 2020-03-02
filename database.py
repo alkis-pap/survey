@@ -10,22 +10,23 @@ class Database:
         self.cur = self.conn.cursor()
         self.columns = columns
         column_set = set(columns)
-        try:
-            self.cur.execute('select * from results')
-        except sqlite3.OperationalError:
-            self.reset()
-        else:
-            existing_cols = set([d[0] for d in self.cur.description]) - set(['id', 'time', 'survey'])
-            if existing_cols != columns:
-                print('existing columns: ', existing_cols)
-                print('new columns: ', columns)
-                if existing_cols.issubset(columns):
-                    extra_columns = [c for c in columns if c in (column_set - existing_cols)]
-                    print ('adding columns: ', extra_columns)
-                    for col in extra_columns:
-                        self.commit("alter table results add column" + col + " text")
-                else:
-                    self.reset()
+        if len(columns) > 0:
+            try:
+                self.cur.execute('select * from results')
+            except sqlite3.OperationalError:
+                self.reset()
+            else:
+                existing_cols = set([d[0] for d in self.cur.description]) - set(['id', 'time', 'survey'])
+                if existing_cols != columns:
+                    print('existing columns: ', existing_cols)
+                    print('new columns: ', columns)
+                    if existing_cols.issubset(columns):
+                        extra_columns = [c for c in columns if c in (column_set - existing_cols)]
+                        print ('adding columns: ', extra_columns)
+                        for col in extra_columns:
+                            self.commit("alter table results add column" + col + " text")
+                    else:
+                        self.reset()    
 
     def reset(self):
         self.backup()
@@ -44,6 +45,8 @@ class Database:
         self.commit(query, record)
 
     def results(self):
+        if len(self.columns) == 0:
+            return []
         self.cur.execute("select * from results")
         return [[d[0] for d in self.cur.description]] + self.cur.fetchall()
 

@@ -58,6 +58,13 @@
       width: 24px
     }
 
+    #log {
+      border: 1px solid black;
+      max-height: 400px;
+      overflow-y: scroll;
+      padding: 5px
+    }
+
   </style>
 </head>
 <body>
@@ -84,6 +91,13 @@
         {% endfor %}
       </tbody>
       </table>
+    </div>
+
+    <h2>Logs:</h2> 
+    <div id="log">
+      {% for date, line in logs %}
+        <div>[{{date.isoformat(' ', 'seconds')}}] {{line}}</div>
+      {% endfor %}
     </div>
 
     <h2>Upload files:</h2>
