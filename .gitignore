@@ -6,3 +6,4 @@ static/surveys/*
 static/files/*
 backups/*
 *.log
+default.conf
