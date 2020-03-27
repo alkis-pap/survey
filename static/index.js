@@ -9,11 +9,17 @@ Survey.StylesManager.applyTheme("bootstrap");
 // Survey.StylesManager.applyTheme("winter");
 // Survey.StylesManager.applyTheme("winterstone");
 
+// localization
+Survey
+    .surveyLocalization
+    .locales["tr"]["startSurveyText"] = "Başla";
 
 Survey.defaultBootstrapCss.navigationButton = 'btn btn-primary';
 
 $.getJSON(json_file, function (json) {
     window.survey = new Survey.Model(json);
+
+    survey.locale = "tr";
 
     survey.maxTimeToFinish = 40 * 60; // 40 min
     // survey.showTimerPanel = "bottom";

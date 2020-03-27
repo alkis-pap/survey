@@ -7,55 +7,6 @@ class SurveyError(Exception):
     pass
 
 class Survey:
-    # page_schemas = {
-    #     'text' : {
-    #         'type' : 'object',
-    #         'properties' : {
-    #             # 'type' : {'type' : 'string', 'enum' : ['text']},
-    #             'text' : {'type' : 'string'},
-    #             'audio' : {'type' : 'string'}
-    #         },
-    #         'required' : ['text']
-    #     },
-    #     'matrix' : {
-    #         'type' : 'object',
-    #         'properties' : {
-    #             # 'type' : {'type' : 'string', 'enum' : ['matrix']},
-    #             'name' : {'type' : 'string'},
-    #             'text' : {'type' : 'string'},
-    #             'audio' : {'type' : 'string'},
-    #             'rows' : {
-    #                 'type' : 'array',
-    #                 'items' : { 'type' : 'string' }    
-    #             },
-    #             'columns' : {
-    #                 'type' : 'array',
-    #                 'items' : { 'type' : 'string' }    
-    #             }
-    #         },
-    #         'required' : ['name', 'columns']
-    #     },
-    #     'photo' : {
-    #         'type' : 'object',
-    #         'properties' : {
-    #             # 'type' : {'type' : 'string', 'enum' : ['photo']},
-    #             'name' : {'type' : 'string'},
-    #             'file' : {'type' : 'string'},
-    #             'choices' : {
-    #                 'type' : 'array',
-    #                 'items' : { 'type' : 'string' }    
-    #             }
-    #         },
-    #         'required' : ['name', 'file', 'choices']
-    #     }
-    # }
-    
-    # schema = {
-    #     'type' : 'array',
-    #     'items' : {
-    #         'oneOf' : list(page_schemas.values())
-    #     }
-    # }
 
     def __init__(self, filename):
         self.columns = []
@@ -64,29 +15,25 @@ class Survey:
             data = json.load(f)
         
         try:
-            # validate(instance=data, schema=Survey.schema)
-            
-                # makers = {
-                #     'text' : self.make_text,
-                #     'matrix' : self.make_matrix,
-                #     'photo' : self.make_photo
-                # }
-                # print(makers)
             self.pages = []
-            for item in data:
-                item_type = item['type']
-                print(item_type)
-                if item_type == 'text':
-                    print('make_text')
-                    self.make_text(item)
-                elif item_type == 'matrix':
-                    print('make_matrix')
-                    self.make_matrix(item)
-                elif item_type == 'photo':
-                    print('make_photo')
-                    self.make_photo(item)
-                else:
-                    raise SurveyError(f"invalid question type: '{item_type}'")
+            for questions_array in data:
+                questions = []
+                for question in questions_array:
+                    question_type = question['type']
+                    print(question_type)
+                    if question_type == 'text':
+                        questions += self.make_text(question)
+                    elif question_type == 'question':
+                        questions += self.make_question(question)
+                    elif question_type == 'matrix':
+                        questions += self.make_matrix(question)
+                    elif question_type == 'photo':
+                        questions += self.make_photo(question)
+                    else:
+                        raise SurveyError(f"invalid question type: '{question_type}'")
+                self.pages.append({
+                    'questions' : questions
+                })
 
         except ValidationError as e:
             raise SurveyError(e)
@@ -100,7 +47,6 @@ class Survey:
         validate(instance=data, schema={
             'type' : 'object',
             'properties' : {
-                # 'type' : {'type' : 'string', 'enum' : ['text']},
                 'text' : {'type' : 'string'},
                 'audio' : {'type' : 'string'}
             },
@@ -115,18 +61,45 @@ class Survey:
         else:
             html = ''
         html += f'<p>{data["text"]}</p>'
-        self.pages.append({
-            "questions": [{
-                'type' : 'html',
-                'html' : html
-            }]
+        
+        return [{
+            'type' : 'html',
+            'html' : html
+        }]
+
+    def make_question(self, data):
+        validate(instance=data, schema={
+            'type' : 'object',
+            'properties' : {
+                'name' : {'type' : 'string'},
+                'text' : {'type' : 'string'},
+                'choices' : {
+                    'type' : 'array',
+                    'items' : { 'type' : 'string' }    
+                }
+            },
+            'required' : ['name', 'choices', 'text']
         })
-    
+
+        self.columns.append(data['name'])
+        
+        return [
+            {
+                "type" : "dropdown",
+                'name' : data["name"],
+                'isRequired' : True,
+                'title' : data["text"],
+                'titleLocation' : 'left',
+                "choices" : [{'value': i + 1, 'text': col} for i, col in enumerate(data["choices"])],
+                "colCount" : len(data["choices"])
+                # "rederAs" : "prettycheckbox"
+            }
+        ]
+
     def make_matrix(self, data):
         validate(instance=data, schema={
             'type' : 'object',
             'properties' : {
-                # 'type' : {'type' : 'string', 'enum' : ['matrix']},
                 'name' : {'type' : 'string'},
                 'text' : {'type' : 'string'},
                 'audio' : {'type' : 'string'},
@@ -143,16 +116,16 @@ class Survey:
         })
 
         self.columns += [data["name"] + "_" + str(i + 1) for i in range(len(data["rows"]))]
-        self.make_text(data)
-        self.pages[-1]["questions"].append({
-                'type' : 'matrix',
-                'name' : data["name"],
-                'title' : data["text"],
-                # 'titleLocation' : 'hidden',
-                'isAllRowRequired' : True,
-                'columns' : [{'value': i + 1, 'text': col} for i, col in enumerate(data["columns"])],
-                'rows' : [{'value': i + 1, 'text' : row} for i, row in enumerate(data["rows"])]
-        })
+
+        return self.make_text(data) + [{
+            'type' : 'matrix',
+            'name' : data["name"],
+            'title' : data["text"],
+            'titleLocation' : 'hidden',
+            'isAllRowRequired' : True,
+            'columns' : [{'value': i + 1, 'text': col} for i, col in enumerate(data["columns"])],
+            'rows' : [{'value': i + 1, 'text' : row} for i, row in enumerate(data["rows"])]
+        }]
 
     def make_photo(self, data):
         validate(instance=data, schema={
@@ -170,20 +143,19 @@ class Survey:
         })
 
         self.columns.append(data['name'])
-        self.pages.append({
-            "questions" : [
-                {
-                    "type" : "html",
-                    "html" : f'<img class="photo" src=/files/{data["file"]} />'
-                },
-                {
-                    "type" : "radiogroup",
-                    'name' : data["name"],
-                    'isRequired' : True,
-                    'titleLocation' : 'hidden',
-                    "choices" : [{'value': i + 1, 'text': col} for i, col in enumerate(data["choices"])],
-                    "colCount" : len(data["choices"])
-                    # "rederAs" : "prettycheckbox"
-                }
-            ]
-        })
+
+        return [
+            {
+                "type" : "html",
+                "html" : f'<img class="photo" src=/files/{data["file"]} />'
+            },
+            {
+                "type" : "radiogroup",
+                'name' : data["name"],
+                'isRequired' : True,
+                'titleLocation' : 'hidden',
+                "choices" : [{'value': i + 1, 'text': col} for i, col in enumerate(data["choices"])],
+                "colCount" : len(data["choices"])
+                # "rederAs" : "prettycheckbox"
+            }
+        ]
