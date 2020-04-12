@@ -5,5 +5,7 @@ log.txt
 static/surveys/*
 static/files/*
 backups/*
+data/*
 *.log
 default.conf
+secret.py

@@ -20,7 +20,9 @@ class Survey:
                 questions = []
                 for question in questions_array:
                     question_type = question['type']
-                    print(question_type)
+                    # print(question_type)
+                    if 'text' in question:
+                        question['text'] = question['text'].replace('\n', '<br>')
                     if question_type == 'text':
                         questions += self.make_text(question)
                     elif question_type == 'question':
@@ -42,7 +44,7 @@ class Survey:
     def generate(self, filename):
         with open(filename, "w") as f:
             f.write(json.dumps({ "pages": self.pages }))
-    
+
     def make_text(self, data):
         validate(instance=data, schema={
             'type' : 'object',
@@ -52,20 +54,40 @@ class Survey:
             },
             'required' : ['text']
         })
-
+        
         if "audio" in data:
-            html = f"""<audio controls autoplay>
+            return[{
+                'type' : 'html',
+                'html' : f"""<audio controls autoplay>
                     <source src="/files/{data["audio"]}" type="audio/wav">
                     Your browser does not support the audio element.
-                </audio>"""
+                </audio>
+                <p class="survey-text">{data["text"]}</p>"""
+            }]
+        elif "audio_m" in data and "audio_w" in data:
+            return [{
+                'type' : 'html',
+                'html' : f"""<audio controls autoplay>
+                    <source src="/files/{data["audio_w"]}" type="audio/wav">
+                    Your browser does not support the audio element.
+                </audio>
+                <p class="survey-text">{data["text"]}</p>""",
+                'visibleIf' : "{gender} = 1"
+            },
+            {
+                'type' : 'html',
+                'html' : f"""<audio controls autoplay>
+                    <source src="/files/{data["audio_m"]}" type="audio/wav">
+                    Your browser does not support the audio element.
+                </audio>
+                <p class="survey-text">{data["text"]}</p>""",
+                'visibleIf' : "{gender} = 2"
+            }]
         else:
-            html = ''
-        html += f'<p>{data["text"]}</p>'
-        
-        return [{
-            'type' : 'html',
-            'html' : html
-        }]
+            return [{
+                'type' : 'html',
+                'html' : f'<p class="survey-text">{data["text"]}</p>'
+            }]
 
     def make_question(self, data):
         validate(instance=data, schema={
@@ -144,10 +166,12 @@ class Survey:
 
         self.columns.append(data['name'])
 
+        title = data.get('title', '')
+
         return [
             {
                 "type" : "html",
-                "html" : f'<img class="photo" src=/files/{data["file"]} />'
+                "html" : f'<p>{title}</p><img class="photo" src=/files/{data["file"]} />'
             },
             {
                 "type" : "radiogroup",

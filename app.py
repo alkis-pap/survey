@@ -9,6 +9,7 @@ from datetime import datetime
 from survey import *
 from database import *
 from util import flatten
+import secret
 
 print('starting survey service')
 
@@ -59,34 +60,49 @@ state.init()
 
 app = Flask(__name__, static_folder='./static/')
 
-app.secret_key = b'\xaf\x82\xfa\xf6\xc8\xd6o\xcc\xa4\x10\xd2\xad\x90\xd0\x01\xb6'
-PASSWORD = '12345'
+app.secret_key = secret.SECRET_KEY
 
 @app.route('/index.html')
 def index():
     return redirect('/')
 
+
+surveys = os.listdir('static/surveys')
+random.shuffle(surveys)
+
+# @app.before_request
+# def before_request():
+#     if 'id' not in session:
+#         session['id'] = state.db.session_id()
+
 @app.route('/', methods=['GET'])
 def main():
+    if 'survey' not in session:
+        survey_id = state.db.session_id() % len(surveys)
+        session['survey'] = surveys[survey_id]
+        session['start_time'] = datetime.now().isoformat(sep=' ', timespec='seconds')
+        if survey_id == len(surveys) - 1:
+            random.shuffle(surveys)
     name = request.args.get("name")
-    surveys = os.listdir('static/surveys')
-    print(surveys)
     if name is None:
-        name = surveys[random.randint(0, len(surveys) - 1)]
+        name = session['survey']
     print(name)
     return render_template('index.html', survey=name)
 
 @app.route('/submit', methods=['POST'])
 def submit():
     print('submit', flush=True)
+    # if 'survey' in session:
     data = flatten(request.get_json())
+    data['survey'] = session['survey']
+    data['start_time'] = session['start_time']
     state.db.insert_record(data)
     return 'OK'
     
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        if request.form['pass'] == PASSWORD:
+        if request.form['pass'] == secret.ADMIN_PASS:
             session['admin'] = True
             return redirect(url_for('admin', _external=True))
         else:
@@ -119,8 +135,8 @@ def delete_file(filename=None):
 
 @app.route('/files/<filename>')
 def files(filename=None):
-    if 'admin' in session and filename is not None and os.path.isfile(os.path.join('static/files', filename)):
-        return send_from_directory('static/files', filename=filename, mimetype=guess_type(filename)[0])
+    # if filename is not None and os.path.isfile(os.path.join('static/files', filename)):
+    return send_from_directory('static/files', filename=filename, mimetype=guess_type(filename)[0])
 
 @app.route('/upload', methods=['POST'])
 def upload():
