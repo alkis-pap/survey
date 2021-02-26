@@ -62,6 +62,10 @@ class Database:
         self.cur.execute("select * from results")
         return [[d[0] for d in self.cur.description]] + self.cur.fetchall()
 
+    def query(self, query):
+        self.cur.execute(query)
+        return self.cur.fetchall()
+
     def session_id(self):
         try:
             self.cur.execute('select value from session_id')

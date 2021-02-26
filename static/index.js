@@ -14,7 +14,7 @@ function loadState(survey) {
         res = {};
 
     //Set the loaded data into the survey.
-    if (res.completed) {
+    if (COMPLETED || res.completed) {
         survey.doComplete();
     }
     else if (res.started) {
@@ -60,7 +60,7 @@ Survey
 
 Survey.defaultBootstrapCss.navigationButton = 'btn btn-primary';
 
-$.getJSON(json_file, function (json) {
+$.getJSON(JSON_FILE, function (json) {
     window.survey = new Survey.Model(json);
 
     survey.locale = "tr";
